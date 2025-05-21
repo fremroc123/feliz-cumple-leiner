@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>¡Feliz Cumpleaños Leiner!</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #b3e5fc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: 'Arial', sans-serif;
+      overflow: hidden;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    .regalo {
+      width: 200px;
+      height: 200px;
+      background-color: red;
+      position: relative;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      transition: all 0.5s ease;
+    }
+
+    .cinta {
+      width: 20px;
+      height: 200px;
+      background-color: gold;
+      position: absolute;
+      left: 90px;
+      top: 0;
+    }
+
+    .cinta-horizontal {
+      width: 200px;
+      height: 20px;
+      background-color: gold;
+      position: absolute;
+      top: 90px;
+      left: 0;
+    }
+
+    .tapa {
+      width: 220px;
+      height: 30px;
+      background-color: red;
+      position: absolute;
+      top: -30px;
+      left: -10px;
+      border-radius: 5px;
+      transition: transform 0.5s ease;
+      transform-origin: bottom center;
+    }
+
+    .mensaje {
+      margin-top: 20px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #444;
+      display: none;
+      text-align: center;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .abierto .tapa {
+      transform: rotateX(150deg);
+    }
+
+    .abierto .mensaje {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎉 ¡Haz clic en el regalo! 🎁</h1>
+  <div class="regalo" id="regalo" tabindex="0">
+    <div class="cinta"></div>
+    <div class="cinta-horizontal"></div>
+    <div class="tapa"></div>
+  </div>
+  <div class="mensaje" id="mensaje">
+    🎂 ¡Feliz cumpleaños Leiner!<br>
+    De parte de Fremroc 🎈
+  </div>
+
+  <canvas id="confeti"></canvas>
+
+  <script>
+    const regalo = document.getElementById('regalo');
+    const mensaje = document.getElementById('mensaje');
+    const canvas = document.getElementById('confeti');
+    const ctx = canvas.getContext('2d');
+
+    let confetis = [];
+    const colores = ["#ff0", "#f00", "#0f0", "#0ff", "#f0f", "#00f", "#ffa500"];
+    let abierto = false;
+
+    function ajustarCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    ajustarCanvas();
+    window.addEventListener('resize', ajustarCanvas);
+
+    function crearConfeti() {
+      for (let i = 0; i < 200; i++) {
+        confetis.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * -canvas.height,
+          r: Math.random() * 6 + 4,
+          d: Math.random() * 10 + 2,
+          color: colores[Math.floor(Math.random() * colores.length)],
+          tilt: Math.random() * 10 - 10,
+        });
+      }
+    }
+
+    function dibujarConfeti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < confetis.length; i++) {
+        let c = confetis[i];
+        ctx.beginPath();
+        ctx.fillStyle = c.color;
+        ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      moverConfeti();
+    }
+
+    function moverConfeti() {
+      for (let i = 0; i < confetis.length; i++) {
+        let c = confetis[i];
+        c.y += c.d;
+        c.x += Math.sin(c.tilt) * 2;
+        if (c.y > canvas.height) {
+          c.y = -10;
+          c.x = Math.random() * canvas.width;
+        }
+      }
+    }
+
+    function animar() {
+      dibujarConfeti();
+      requestAnimationFrame(animar);
+    }
+
+    regalo.addEventListener('click', () => {
+      if (abierto) return;
+      abierto = true;
+      regalo.classList.add('abierto');
+      mensaje.style.display = "block";
+      crearConfeti();
+      animar();
+    });
+
+    // Accesibilidad: permitir Enter/Espacio
+    regalo.addEventListener('keydown', (e) => {
+      if ((e.key === "Enter" || e.key === " ") && !abierto) {
+        regalo.click();
+      }
+    });
+  </script>
+</body>
+</html>
